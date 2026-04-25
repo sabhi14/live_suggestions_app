@@ -1,0 +1,11 @@
+D:\live_suggestions_app\backend\src\main\java\com\livesuggestions\backend\config\CorsConfig.java
+D:\live_suggestions_app\backend\src\main\java\com\livesuggestions\backend\controller\ApiController.java
+D:\live_suggestions_app\backend\src\main\java\com\livesuggestions\backend\dto\ChatRequest.java
+D:\live_suggestions_app\backend\src\main\java\com\livesuggestions\backend\dto\ChatResponse.java
+D:\live_suggestions_app\backend\src\main\java\com\livesuggestions\backend\dto\SuggestionsRequest.java
+D:\live_suggestions_app\backend\src\main\java\com\livesuggestions\backend\dto\SuggestionsResponse.java
+D:\live_suggestions_app\backend\src\main\java\com\livesuggestions\backend\dto\TranscriptionResponse.java
+D:\live_suggestions_app\backend\src\main\java\com\livesuggestions\backend\exception\ApiException.java
+D:\live_suggestions_app\backend\src\main\java\com\livesuggestions\backend\exception\GlobalExceptionHandler.java
+D:\live_suggestions_app\backend\src\main\java\com\livesuggestions\backend\LiveSuggestionsBackendApplication.java
+D:\live_suggestions_app\backend\src\main\java\com\livesuggestions\backend\service\GroqClient.java
