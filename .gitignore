@@ -1,0 +1,15 @@
+# Backend build outputs
+backend/target/
+
+# Frontend dependencies and build/cache outputs
+frontend/node_modules/
+frontend/dist/
+frontend/.angular/
+
+# Logs
+*.log
+
+# OS/editor noise
+.DS_Store
+Thumbs.db
+.idea/
