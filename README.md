@@ -29,7 +29,17 @@ cd backend
 mvn spring-boot:run
 ```
 
-Backend runs on `http://localhost:8080` with CORS enabled for `http://localhost:4200`.
+Backend runs on `http://localhost:8080`.
+
+CORS origins are environment-configurable via:
+
+- `app.cors.allowed-origins` in `backend/src/main/resources/application.properties`
+- `APP_CORS_ALLOWED_ORIGINS` environment variable (comma-separated origins)
+
+Default allowed origins:
+
+- `http://localhost:4200`
+- `https://live-suggestions-611x08vmo-sabhi14s-projects.vercel.app`
 
 ## Run Frontend
 
@@ -101,8 +111,19 @@ If a window returns no chunks, the app safely falls back to full transcript cont
 ## Deployment Notes
 
 - Frontend and backend can be deployed independently.
-- Configure backend CORS for deployed frontend origin.
-- Prefer environment-based backend URL in frontend for production builds.
+- Current deployments:
+  - Frontend (Vercel): `https://live-suggestions-611x08vmo-sabhi14s-projects.vercel.app`
+  - Backend (Render): `https://live-suggestions-backend.onrender.com`
+- Frontend API base URL is environment-based:
+  - `frontend/src/environments/environment.ts` -> `http://localhost:8080/api`
+  - `frontend/src/environments/environment.prod.ts` -> `https://live-suggestions-backend.onrender.com/api`
+- Angular production builds use file replacement in `frontend/angular.json` to swap `environment.ts` with `environment.prod.ts`.
+- Backend CORS is environment-driven:
+  - Property: `app.cors.allowed-origins`
+  - Env var override: `APP_CORS_ALLOWED_ORIGINS`
+  - Multiple origins must be comma-separated (no spaces required).
+- Example:
+  - `APP_CORS_ALLOWED_ORIGINS=http://localhost:4200,https://live-suggestions-611x08vmo-sabhi14s-projects.vercel.app`
 - Use HTTPS in production for microphone access and secure API key handling.
 - For scale: add request logging, rate limiting, retry/backoff policy, and secret management.
 
