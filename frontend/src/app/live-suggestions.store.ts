@@ -1,6 +1,7 @@
 import { Injectable, computed, signal } from '@angular/core';
 import { HttpClient, HttpErrorResponse, HttpHeaders } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
+import { environment } from '../environments/environment';
 
 export interface TranscriptChunk {
   id: string;
@@ -50,7 +51,7 @@ export class LiveSuggestionsStore {
   private readonly sessionId = crypto.randomUUID();
   private readonly startedAtIso = new Date().toISOString();
 
-  readonly apiBase = 'http://localhost:8080/api';
+  readonly apiBase = environment.apiUrl;
   private static readonly STORAGE_KEY = 'liveSuggestionsSettings';
 
   readonly isRecording = signal(false);
