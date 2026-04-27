@@ -80,15 +80,7 @@ public class GroqClient {
         String content = callChatCompletion(prompt, groqApiKey);
 
         try {
-            List<String> suggestions = objectMapper.readValue(content, new TypeReference<>() {
-            });
-            if (suggestions == null) {
-                throw new ApiException(HttpStatus.BAD_GATEWAY, "Model returned null suggestions payload");
-            }
-            if (suggestions.size() != 3) {
-                throw new ApiException(HttpStatus.BAD_GATEWAY, "Model did not return exactly 3 suggestions");
-            }
-            return suggestions;
+            return parseSuggestions(content);
         } catch (IOException e) {
             throw new ApiException(HttpStatus.BAD_GATEWAY, "Model returned invalid JSON for suggestions");
         }
@@ -135,7 +127,10 @@ public class GroqClient {
     private String buildSuggestionsPrompt(SuggestionsRequest request) {
         return """
                 Generate exactly 3 short next-sentence suggestions for a live conversation assistant.
-                Return ONLY a valid JSON array of 3 strings. No markdown, no explanation.
+                Return ONLY valid JSON in one of these forms:
+                - ["...", "...", "..."]
+                - {"suggestions":["...", "...", "..."]}
+                No markdown, no explanation.
 
                 transcriptChunks:
                 %s
@@ -146,6 +141,30 @@ public class GroqClient {
                 settings:
                 %s
                 """.formatted(request.transcriptChunks(), request.previousSuggestionBatches(), request.settings());
+    }
+
+    private List<String> parseSuggestions(String content) throws IOException {
+        List<String> suggestions = null;
+
+        if (content.trim().startsWith("[")) {
+            suggestions = objectMapper.readValue(content, new TypeReference<>() {
+            });
+        } else if (content.trim().startsWith("{")) {
+            Map<String, Object> payload = objectMapper.readValue(content, new TypeReference<>() {
+            });
+            Object rawSuggestions = payload.get("suggestions");
+            if (rawSuggestions instanceof List<?> list) {
+                suggestions = list.stream().map(String::valueOf).toList();
+            }
+        }
+
+        if (suggestions == null) {
+            throw new ApiException(HttpStatus.BAD_GATEWAY, "Model returned null suggestions payload");
+        }
+        if (suggestions.size() != 3) {
+            throw new ApiException(HttpStatus.BAD_GATEWAY, "Model did not return exactly 3 suggestions");
+        }
+        return suggestions;
     }
 
     private String buildChatPrompt(ChatRequest request) {

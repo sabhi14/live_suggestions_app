@@ -1,0 +1,174 @@
+<div class="app-shell">
+  <header class="top-bar">
+    <h1>Live Suggestions</h1>
+    <div class="top-actions">
+      <button class="btn secondary" (click)="store.toggleSettings()">Settings</button>
+      <button class="btn secondary" (click)="store.exportStateAsJson()">Export JSON</button>
+    </div>
+  </header>
+
+  @if (store.errorMessage()) {
+    <p class="error-banner">{{ store.errorMessage() }}</p>
+  }
+
+  <main class="columns">
+    <section class="panel">
+      <h2>Transcript</h2>
+      <div class="controls">
+        <button class="btn" [class.stop]="store.isRecording()" (click)="toggleRecording()">
+          {{ store.isRecording() ? 'Stop Mic' : 'Start Mic' }}
+        </button>
+        <button class="btn secondary" (click)="refreshSuggestions()" [disabled]="store.isRefreshingSuggestions()">
+          {{ store.isRefreshingSuggestions() ? 'Refreshing...' : 'Refresh' }}
+        </button>
+      </div>
+      <p class="status">Status: {{ store.recordingStatus() }}</p>
+      @if (store.isTranscribing()) {
+        <p class="status">Transcribing audio chunk...</p>
+      }
+
+      <div class="scroll-area transcript-list" #transcriptScroll>
+        @for (chunk of store.transcriptChunks(); track chunk.id) {
+          <article class="card transcript-card">
+            <div class="card-meta">{{ chunk.timestamp }}</div>
+            <p>{{ chunk.text }}</p>
+          </article>
+        } @empty {
+          <p class="empty">Transcript chunks will appear here.</p>
+        }
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Live Suggestions</h2>
+      @if (store.isRefreshingSuggestions()) {
+        <p class="status">Generating suggestions...</p>
+      }
+      <div class="scroll-area">
+        @for (batch of store.suggestionBatches(); track batch.id) {
+          <div class="batch">
+            <p class="batch-time">{{ batch.timestamp }}</p>
+            @for (suggestion of batch.suggestions; track suggestion.id) {
+              <article class="card clickable" (click)="selectSuggestion(suggestion)">
+                <div class="suggestion-head">
+                  <span class="pill">{{ suggestion.type }}</span>
+                  <h3>{{ suggestion.title }}</h3>
+                </div>
+                <p class="preview">{{ suggestion.preview }}</p>
+                <p class="why">{{ suggestion.whyNow }}</p>
+              </article>
+            }
+          </div>
+        } @empty {
+          <p class="empty">Click Refresh to generate exactly 3 suggestions.</p>
+        }
+      </div>
+    </section>
+
+    <section class="panel chat-panel">
+      <h2>Chat</h2>
+      <div class="scroll-area chat-history">
+        @for (message of store.chatMessages(); track message.id) {
+          <article class="chat-message" [class.user]="message.role === 'user'" [class.assistant]="message.role === 'assistant'">
+            <p class="message-role">{{ message.role === 'user' ? 'You' : 'Assistant' }}</p>
+            <p>{{ message.text }}</p>
+            <span>{{ message.timestamp }}</span>
+          </article>
+        } @empty {
+          <p class="empty">Chat history will appear here.</p>
+        }
+      </div>
+
+      <div class="chat-input-row">
+        <input
+          type="text"
+          [ngModel]="store.pendingChatInput()"
+          (ngModelChange)="store.setChatInput($event)"
+          placeholder="Type your message..."
+          (keydown.enter)="sendChat()"
+        />
+        <button class="btn" (click)="sendChat()" [disabled]="store.isSendingChat()">
+          {{ store.isSendingChat() ? 'Sending...' : 'Send' }}
+        </button>
+      </div>
+    </section>
+  </main>
+
+  @if (store.isSettingsOpen()) {
+    <div class="settings-overlay" (click)="store.closeSettings()">
+      <div class="settings-modal" (click)="$event.stopPropagation()">
+        <h3>Settings</h3>
+        <label>
+          Groq API Key
+          <input
+            type="password"
+            [ngModel]="store.settings().groqApiKey"
+            (ngModelChange)="store.updateSettings({ groqApiKey: $event })"
+            placeholder="gsk_..."
+          />
+        </label>
+        <label>
+          Live suggestion prompt
+          <textarea
+            [ngModel]="store.settings().liveSuggestionPrompt"
+            (ngModelChange)="store.updateSettings({ liveSuggestionPrompt: $event })"
+            rows="7"
+          ></textarea>
+        </label>
+        <label>
+          Detailed answer prompt
+          <textarea
+            [ngModel]="store.settings().detailedAnswerPrompt"
+            (ngModelChange)="store.updateSettings({ detailedAnswerPrompt: $event })"
+            rows="5"
+          ></textarea>
+        </label>
+        <label>
+          Chat prompt
+          <textarea
+            [ngModel]="store.settings().chatPrompt"
+            (ngModelChange)="store.updateSettings({ chatPrompt: $event })"
+            rows="4"
+          ></textarea>
+        </label>
+        <label>
+          Live suggestion context window (minutes)
+          <input
+            type="number"
+            min="1"
+            [ngModel]="store.settings().liveSuggestionContextWindowMinutes"
+            (ngModelChange)="store.updateSettings({ liveSuggestionContextWindowMinutes: +$event })"
+          />
+        </label>
+        <label>
+          Detailed answer context window (minutes)
+          <input
+            type="number"
+            min="1"
+            [ngModel]="store.settings().detailedAnswerContextWindowMinutes"
+            (ngModelChange)="store.updateSettings({ detailedAnswerContextWindowMinutes: +$event })"
+          />
+        </label>
+        <label>
+          Chat context window (minutes)
+          <input
+            type="number"
+            min="1"
+            [ngModel]="store.settings().chatContextWindowMinutes"
+            (ngModelChange)="store.updateSettings({ chatContextWindowMinutes: +$event })"
+          />
+        </label>
+        <label>
+          Audio chunk seconds
+          <input
+            type="number"
+            min="5"
+            [ngModel]="store.settings().audioChunkSeconds"
+            (ngModelChange)="store.updateSettings({ audioChunkSeconds: +$event })"
+          />
+        </label>
+        <button class="btn" (click)="store.closeSettings()">Done</button>
+      </div>
+    </div>
+  }
+</div>
