@@ -10,27 +10,25 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 public class CorsConfig implements WebMvcConfigurer {
 
     @Value(
-            "${app.cors.allowed-origins:http://localhost:4200,https://live-suggestions-611x08vmo-sabhi14s-projects.vercel.app}"
+            "${app.cors.allowed-origin-patterns:http://localhost:*,https://*.vercel.app}"
     )
-    private String[] allowedOrigins =
-            new String[] {
-                    "http://localhost:4200",
-                    "https://live-suggestions-611x08vmo-sabhi14s-projects.vercel.app"
-            };
+    private String[] allowedOriginPatterns =
+            new String[] { "http://localhost:*", "https://*.vercel.app" };
 
     @Override
     public void addCorsMappings(@NonNull CorsRegistry registry) {
         registry.addMapping("/api/**")
-                .allowedOrigins(getAllowedOrigins())
+                .allowedOriginPatterns(getAllowedOriginPatterns())
                 .allowedMethods("GET", "POST", "OPTIONS")
-                .allowedHeaders("*");
+                .allowedHeaders("*")
+                .maxAge(3600);
     }
 
     @NonNull
-    private String[] getAllowedOrigins() {
-        if (allowedOrigins == null || allowedOrigins.length == 0) {
-            return new String[] { "http://localhost:4200" };
+    private String[] getAllowedOriginPatterns() {
+        if (allowedOriginPatterns == null || allowedOriginPatterns.length == 0) {
+            return new String[] { "http://localhost:*" };
         }
-        return allowedOrigins;
+        return allowedOriginPatterns;
     }
 }

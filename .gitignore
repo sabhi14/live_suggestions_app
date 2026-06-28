@@ -1,4 +1,4 @@
-# Backend build outputs
+# Backend (Maven) build outputs
 backend/target/
 
 # Frontend dependencies and build/cache outputs
