@@ -2,6 +2,8 @@
 
 Real-time meeting copilot that listens to microphone audio, transcribes continuously, generates live speaking suggestions, and supports detailed chat follow-ups with full session export.
 
+**Flow diagrams:** See [docs/FLOW.md](docs/FLOW.md) for architecture, user flows, and assignment requirement mapping.
+
 ## Project Overview
 
 This assignment implements an end-to-end real-time assistant:
